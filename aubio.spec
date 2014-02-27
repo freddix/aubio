@@ -1,15 +1,16 @@
 Summary:	Library for audio labelling
 Name:		aubio
-Version:	0.3.2
-Release:	15
+Version:	0.4.0
+Release:	1
 License:	GPL v2+
 Group:		Libraries
-Source0:	http://aubio.piem.org/pub/%{name}-%{version}.tar.gz
-# Source0-md5:	ffc3e5e4880fec67064f043252263a44
+Source0:	http://aubio.org/pub/%{name}-%{version}.tar.bz2
+# Source0-md5:	8de88baab79f7eec8e1c7f321c4026af
 URL:		http://aubio.piem.org/
 BuildRequires:	alsa-lib-devel
 BuildRequires:	autoconf
 BuildRequires:	automake
+BuildRequires:	ffmpeg-devel
 BuildRequires:	fftw3-single-devel
 BuildRequires:	jack-audio-connection-kit-devel
 BuildRequires:	libsamplerate-devel
@@ -40,26 +41,26 @@ A few examples of applications using aubio library.
 %prep
 %setup -q
 
+%{__sed} -i 's|${PREFIX}/lib|%{_libdir}|' src/wscript_build
+
 %build
-%{__libtoolize}
-%{__aclocal}
-%{__autoconf}
-%{__autoheader}
-%{__automake}
-%configure \
-	--disable-static	\
-	--enable-alsa		\
-	--enable-jack
-%{__make}
+export CC="%{__cc}"
+export CXX="%{__cxx}"
+export CFLAGS="%{rpmcflags}"
+export CXXFLAGS="%{rpmcxxflags}"
+export LDFLAGS="%{rpmldflags}"
+./waf configure \
+        --nocache \
+	--libdir=%{_libdir} \
+	--prefix=%{_prefix} \
+	--enable-fftw3f
+./waf -v build
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%{__make} install \
-	DESTDIR=$RPM_BUILD_ROOT
-
-%py_postclean
-rm -f $RPM_BUILD_ROOT%{py_sitedir}/aubio/_aubiowrapper.la
+./waf -v install \
+        --destdir=$RPM_BUILD_ROOT
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -69,27 +70,22 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc AUTHORS ChangeLog NEWS README THANKS TODO
+%doc AUTHORS ChangeLog README.md
 %attr(755,root,root) %ghost %{_libdir}/libaubio.so.?
-%attr(755,root,root) %ghost %{_libdir}/libaubioext.so.?
 %attr(755,root,root) %{_libdir}/libaubio.so.*.*.*
-%attr(755,root,root) %{_libdir}/libaubioext.so.*.*.*
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libaubio.so
-%attr(755,root,root) %{_libdir}/libaubioext.so
-%{_libdir}/libaubio.la
-%{_libdir}/libaubioext.la
 %{_includedir}/%{name}
 %{_pkgconfigdir}/aubio.pc
 
 %files progs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/aubiocut
+%attr(755,root,root) %{_bindir}/aubiomfcc
 %attr(755,root,root) %{_bindir}/aubionotes
 %attr(755,root,root) %{_bindir}/aubioonset
 %attr(755,root,root) %{_bindir}/aubiopitch
+%attr(755,root,root) %{_bindir}/aubioquiet
 %attr(755,root,root) %{_bindir}/aubiotrack
-%{_datadir}/sounds/aubio
 
