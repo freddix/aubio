@@ -1,11 +1,11 @@
 Summary:	Library for audio labelling
 Name:		aubio
-Version:	0.4.0
+Version:	0.4.1
 Release:	1
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://aubio.org/pub/%{name}-%{version}.tar.bz2
-# Source0-md5:	8de88baab79f7eec8e1c7f321c4026af
+# Source0-md5:	ffe7d24f6bd8e9053aeaba6c0231efb0
 URL:		http://aubio.piem.org/
 BuildRequires:	alsa-lib-devel
 BuildRequires:	autoconf
